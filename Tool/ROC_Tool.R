@@ -334,7 +334,7 @@ server <- function(input, output, session) {
     
     output$roc_plot <- renderPlot({
       generate_roc_plot()
-    })
+    }, width = function() { input$plot_size_input }, height = function() { input$plot_size_input })
     
     showNotification("Curve names updated successfully.", type = "message")
   })
