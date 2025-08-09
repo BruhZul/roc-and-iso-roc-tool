@@ -124,7 +124,6 @@ calculate_rra_region <- function(roc_data, rho) {
   rra_region <- data.frame(FPR = unlist(rra_compuation$under_x),
                            TPR = unlist(rra_compuation$under_y))
   
-  # primo e ultimo punto regione RRA
   if (any(valid_indices)) {
     first_point <- data.frame(
       FPR = combined_fpr[which(valid_indices)[1]],
@@ -383,15 +382,13 @@ server <- function(input, output, session) {
   
   # Load configuration
   observeEvent(input$file_upload_config, {
-    #shinyjs::click("reset_button")
     req(input$file_upload_config)
     
     file <- input$file_upload_config$datapath
     
     if (file != "") {
-      config <- readRDS(file)   # Carica la configurazione
+      config <- readRDS(file) 
       
-      # Aggiorna gli input della UI con i valori dal file di configurazione
       updateNumericInput(session, "AP", value = config$AP)
       updateNumericInput(session, "AN", value = config$AN)
       updateCheckboxInput(session, "show_roi", value = config$show_roi)
@@ -408,39 +405,35 @@ server <- function(input, output, session) {
       updateNumericInput(session, "plot_size_input", value = config$plot_size_input)
       updateCheckboxInput(session, "show_diagonal", value = config$show_diagonal)
       
-      # Verifica che esista la lista delle curve ROC e i valori AUC/RRA
       if (!is.null(config$roc_data_list)) {
         roc_data_list_l <- config$roc_data_list
         auc_rra_list <- list()
         roc_files = config$file_names
         
-        # Ordina e processa ogni curva ROC
         for (i in seq_along(roc_data_list_l)) {
           roc_data <- roc_data_list_l[[i]]
           
-          roc_data <- roc_data[order(roc_data$FPR, roc_data$TPR), ]   # Ordina i dati ROC
+          roc_data <- roc_data[order(roc_data$FPR, roc_data$TPR), ]   
           
           auc_value <- calculate_auc(roc_data$FPR, roc_data$TPR)
           
-          rho <- config$AP / (config$AP + config$AN)   # Calcola RRA
+          rho <- config$AP / (config$AP + config$AN)
           rra_value <- suppressWarnings(rra(roc_data$FPR, roc_data$TPR, config$AP, config$AN, 
                                             fallout = TRUE, recall = TRUE, plot = FALSE, print = FALSE))
           
-          auc_rra_list[[i]] <- list(auc = auc_value, rra = rra_value$rra)   # Memorizza AUC e RRA per la curva corrente
+          auc_rra_list[[i]] <- list(auc = auc_value, rra = rra_value$rra) 
           
-          roc_data_list_l[[i]] <- roc_data   # Aggiorna lista curve ROC
+          roc_data_list_l[[i]] <- roc_data  
         }
         
-        # Memorizza le curve ROC ordinate e i valori AUC/RRA
         roc_data_list(roc_data_list_l)
         auc_rra_values(auc_rra_list)
         file_names_list(roc_files)
         
-        # Mostra una notifica con il numero di curve caricate
         num_curves <- length(roc_data_list_l)
         showNotification(paste("Load", num_curves, "ROC Curve."), type = "message")
         
-        shinyjs::click("submit_button")   # Genera plot 
+        shinyjs::click("submit_button")
       }
     }
   })
@@ -460,19 +453,17 @@ server <- function(input, output, session) {
       N <- AP + AN
       rho <- AP / N
       
-      #elabora ogni file caricato
-      file_names <- input$file_upload$name  # Ottieni i nomi dei file caricati
+      file_names <- input$file_upload$name
       for (i in seq_along(file_paths)) {
         file <- file_paths[i]
-        file_name <-  substr(file_names[i], 1, nchar(file_names[i])-4) # Nome del file, remove .csv
+        file_name <-  substr(file_names[i], 1, nchar(file_names[i])-4)
         
-        roc_data <- read.csv(file)   #legge csv e genera roc curve
+        roc_data <- read.csv(file)
         
-        roc_data <- roc_data[order(roc_data$FPR, roc_data$TPR), ]   #ordina punti delle curve
+        # needed, otherwise ggplot does not plot the ROC curve correctly
+        roc_data <- roc_data[order(roc_data$FPR, roc_data$TPR), ] 
         
-        #controlla se colonna 'Thresholds' è presente, altrimenti calcola
         if (!"Thresholds" %in% colnames(roc_data)) {
-          #roc_data$Thresholds <- seq(1, 0, length.out = nrow(roc_data))
           roc_data$Thresholds <- rep("Not Provided", nrow(roc_data))
         }
         
@@ -491,31 +482,26 @@ server <- function(input, output, session) {
             roc_name = roc_data
           }
           
-          roc_points <- data.frame(FPR = roc_name$FPR, TPR = roc_name$TPR, Thresholds = roc_name$Thresholds)   #genera punti roc ordinati
+          roc_points <- data.frame(FPR = roc_name$FPR, TPR = roc_name$TPR, Thresholds = roc_name$Thresholds)
           
-          auc_value <- calculate_auc(roc_points$FPR, roc_points$TPR)   #calcola auc
+          auc_value <- calculate_auc(roc_points$FPR, roc_points$TPR)  
           
-          rra_region <- calculate_rra_region(roc_points, rho)   #calcola regione rra per ogni curva
+          rra_region <- calculate_rra_region(roc_points, rho) 
           
           auc_rra <- suppressWarnings(rra(roc_points$FPR, roc_points$TPR, AP, AN, 
-                                          fallout = TRUE, recall = TRUE, plot = FALSE, print = FALSE))   #calcola rra
+                                          fallout = TRUE, recall = TRUE, plot = FALSE, print = FALSE))
           
-          # Aggiungi alla lista reattiva
           roc_data_list(append(roc_data_list(), list(roc_points)))
           auc_rra_values(append(auc_rra_values(), list(list(auc = auc_value, rra = auc_rra$rra))))
           file_names_list(append(file_names_list(), name))
-          #iso_values(append(iso_values(), iso_auc_vals))
         }
       }
-      #reset(id = "") # from shinyjs package 
     }
   })
   
   
   
-  #salvataggio parziale file xml
   observeEvent(input$save_partial_xhtml_button, {
-    # Directory di salvataggio e nome file
     save_dir <- tempdir() 
     xhtml_filename <- "roc_data_partial.xml"
     xhtml_path <- file.path(save_dir, xhtml_filename)
@@ -528,7 +514,7 @@ server <- function(input, output, session) {
       if (!is.null(new_xhtml_content)) {
         writeLines(new_xhtml_content, xhtml_path)
         
-        file_state$xhtml_content <- new_xhtml_content   # Aggiorna stato del file per il download
+        file_state$xhtml_content <- new_xhtml_content 
         file_state$xhtml_path <- xhtml_path
         
         showNotification("Partial XML saved successfully. File available for download.", type = "message")
@@ -571,20 +557,16 @@ server <- function(input, output, session) {
       xhtml_filename <- "roc_data.xhtml"
       zip_filename <- "roc_plot.zip"
       
-      # Generazione del plot e salvataggio in PNG
       tryCatch({
         plot <- generate_roc_plot()
         if (is.null(plot)) stop("Plot is not available.")
-        #ggsave(filename = file.path(temp_dir, png_filename), plot = plot, device = "png", width = 8, height = 6)
         ggsave(filename = png_filename, plot = plot, device = "png", width = 8, height = 6)
       }, error = function(e) {
         showNotification(paste("Error saving PNG file:", e$message), type = "error")
         return(NULL)
       })
       
-      # Codifica in base64 del PNG
       png_base64 <- tryCatch({
-        #png_path <- file.path(temp_dir, png_filename)
         png_path = png_filename
         png_data <- readBin(png_path, what = "raw", n = file.info(png_path)$size)
         base64enc::base64encode(png_data)
@@ -593,22 +575,16 @@ server <- function(input, output, session) {
         return(NULL)
       })
       
-      # Generazione del contenuto XHTML utilizzando la funzione
       auc_rra_list <- auc_rra_values()
       file_names <- file_names_list()
       new_xhtml_content <- generate_xhtml_content(auc_rra_list, file_names)
       
-      # Scrittura del file XHTML
       if (!is.null(new_xhtml_content)) {
-        #xhtml_path <- file.path(temp_dir, xhtml_filename)
         xhtml_path = xhtml_filename
         writeLines(new_xhtml_content, xhtml_path)
         file_state$xhtml_path <- xhtml_path
       }
       
-      # Creazione del file ZIP
-      #old_wd <- setwd(temp_dir)
-      #on.exit(setwd(old_wd), add = TRUE)
       tryCatch({
         zip(zipfile = zip_filename, files = c(png_filename, file_state$xhtml_path))
         file.copy(zip_filename, file, overwrite = TRUE)
@@ -695,8 +671,7 @@ server <- function(input, output, session) {
     })
   }
   
-  
-  # checkbox dinamici per mostrare/nascondere curve e iso-curve
+  # dynamic checkboxes
   output$curve_visibility_controls <- renderUI({
     req(file_names_list())
     file_names <- file_names_list()
@@ -739,38 +714,6 @@ server <- function(input, output, session) {
   outputOptions(output, "curve_visibility_controls", suspendWhenHidden = FALSE)
   
   
-  #calcolo ROI
-  #observeEvent(input$calculate_roi_button, {
-  #  roi_thresholds <- reactive({
-  #    req(roc_data_list())
-  #    
-  #    thresholds_in_roi <- lapply(seq_along(roc_data_list()), function(i) {
-  #      curve <- roc_data_list()[[i]]
-  #      rho <- input$AP / (input$AP + input$AN)
-  #      
-  #      # Calcola regione RRA
-  #      rra_result <- calculate_rra_region(curve, rho)
-  #      first_point <- rra_result$first_point
-  #      last_point <- rra_result$last_point
-  #      
-  #      #soglie punti iniziale e finale
-  #      min_threshold <- curve$Thresholds[which.min(abs(curve$FPR - first_point$FPR))]
-  #      max_threshold <- curve$Thresholds[which.min(abs(curve$FPR - last_point$FPR))]
-  #      
-  #      list(
-  #        min_threshold = min_threshold,
-  #        max_threshold = max_threshold
-  #      )
-  #    })
-  #    
-  #    return(thresholds_in_roi)
-  #  })
-  #})
-  
-  
-  
-  
-  #bottone Reset
   observeEvent(input$reset_button, {
     is_reset_pressed = pressed_reset()
     if(!is_reset_pressed){
@@ -798,7 +741,7 @@ server <- function(input, output, session) {
     pressed_reset(is_reset_pressed)
   })
   
-  #bottone HELP
+
   observeEvent(input$help_button, {
     system(paste0('open "', "./doc/Documentation.pdf", '"'))
     showModal(modalDialog(
@@ -808,8 +751,6 @@ server <- function(input, output, session) {
       footer = NULL
     ))
   })
-  
-  
   
   
   #plot
@@ -834,9 +775,8 @@ server <- function(input, output, session) {
       brewer.pal(min(num_curves, 9), "Set1")
     }
     
-    iso_colors <- suppressWarnings(brewer.pal(min(length(input$iso_metric), 9), "Dark2")) # Colori isoCurve
+    iso_colors <- suppressWarnings(brewer.pal(min(length(input$iso_metric), 9), "Dark2")) 
     
-    # etichetta corrispondente per ogni metrica
     iso_legend_labels <- lapply(input$iso_metric, function(metric) paste0("Iso-", metric, " Curve"))
     names(iso_legend_labels) <- unlist(iso_legend_labels)
     
@@ -879,8 +819,6 @@ server <- function(input, output, session) {
       curve_id <- paste0("curve_", i)
       show_curve <- input[[curve_id]]
       show_curve = ifelse(is.null(show_curve),FALSE,show_curve)
-      #show_auc <- input[[paste0(curve_id, "_auc")]]
-      #show_rra <- input[[paste0(curve_id, "_rra")]]
       auc_metric <- input$iso_metric_auc
       rra_metric <- input$iso_metric_rra
       
@@ -892,23 +830,22 @@ server <- function(input, output, session) {
         p <- p + geom_vline(aes(xintercept = rho, linetype = "FPR RoI Line"), color = "pink", size = 1)
       }
       if (input$show_diagonal) {
-        #p <- p + geom_abline(intercept = 0, slope = 1, aes(linetype = "Diagonal"), color = "lightgrey", size = 1, alpha=0.6)
         p <- p + geom_abline(aes(intercept=0, slope=1, linetype = "Diagonal"), color = "lightgrey", size = 1, alpha=0.6)
       }
       
       #iso-curve
-      if (length(roc_data) > 0) { #input$hide_iso_curves &&
+      if (length(roc_data) > 0) { 
         metrics <- input$iso_metric
         metric_values <- seq(0, 1, by = input$iso_interval)
         for (metric_idx in seq_along(metrics)) {
           iso_metric <- metrics[metric_idx]
           if(ifelse(is.null(input[[paste0("isocurve_",iso_metric)]]), FALSE, input[[paste0("isocurve_",iso_metric)]])){
             iso_curves <- add_iso_curves(rho, iso_metric, metric_values)
-            iso_color <- iso_colors[metric_idx] # Colore metrica
-            iso_label <- paste0("Iso-", iso_metric, " Curve") # Etichetta metrica
+            iso_color <- iso_colors[metric_idx]
+            iso_label <- paste0("Iso-", iso_metric, " Curve")
             
             if (nrow(iso_curves) > 0) {
-              iso_curves$legend_label <- iso_label  # Aggiunge la colonna per la legenda
+              iso_curves$legend_label <- iso_label
               p <- p + geom_path(data = iso_curves, aes(x = FPR, y = TPR, group = group, linetype = legend_label), color = iso_color, size = 0.8)
             }
           }
@@ -926,13 +863,11 @@ server <- function(input, output, session) {
       }
       
       
-      # Mostra curva e elementi correlati se 'show_curve' è TRUE
       if (show_curve) {   
         shown_file_names = c(shown_file_names, file_names[i])
         shown_colors = c(shown_colors, colors[i])
         p <- p + geom_line(data = roc_points, aes(x = FPR, y = TPR, color = curve_id), size = 1)
         
-        #Calcolo regione RRA
         rra_result <- calculate_rra_region(roc_points, rho)
         rra_region <- rra_result$rra_region
         first_point <- rra_result$first_point
@@ -953,7 +888,6 @@ server <- function(input, output, session) {
           }
         }
         
-        #if (show_auc) {
         for(metr in auc_metric){
           if(ifelse(is.null(input[[paste0(curve_id,"_",metr, "_auc")]]), FALSE, input[[paste0(curve_id,"_",metr, "_auc")]])){
             auc_label <- paste0("Iso-",metr," Curve AUC ",file_names[i])
@@ -968,9 +902,7 @@ server <- function(input, output, session) {
             } 
           }
         }
-        #}
         
-        #if (show_rra) {
         for(metr in rra_metric){
           if(ifelse(is.null(input[[paste0(curve_id,"_",metr, "_rra")]]), FALSE, input[[paste0(curve_id,"_",metr, "_rra")]])){
             rra_label <- paste0("Iso-",metr," Curve RRA ",file_names[i])
@@ -985,7 +917,6 @@ server <- function(input, output, session) {
             }  
           }
         }
-        #}
       }
     }
     
@@ -993,27 +924,18 @@ server <- function(input, output, session) {
     p <- p + scale_color_manual(name = "ROC Curves", values = shown_colors, labels = shown_file_names) +
       scale_linetype_manual(name = "Lines", 
                             values = c(
-                              # Linee generali
                               "TPR RoI Line" = "dashed", 
                               "FPR RoI Line" = "dashed", 
                               "Diagonal" = "solid", 
                               
-                              # Iso-Curves
                               setNames(rep("dotted", length(iso_legend_labels)), names(iso_legend_labels)),
                               
-                              # Iso-Curves AUC e RRA
-                              #setNames(rep("twodash", length(linetype_labels), names(iso_legend_labels)), 
-                              #         names(linetype_labels[-c(1:3)][!(names(linetype_labels[-c(1:3)]) %in% names(iso_legend_labels))])),
-                              # iso-pm AUC
-                              #setNames(rep("twodash", length(linetype_labels[-c(1:5)])), names(linetype_labels[-c(1:5)])),
                               setNames(rep("twodash", length(linetype_labels[-c(1:5)][grepl(" AUC ", linetype_labels[-c(1:5)], fixed = TRUE)])),
                                        names(linetype_labels[-c(1:5)][grepl(" AUC ", linetype_labels[-c(1:5)], fixed = TRUE)])),
                               
-                              #iso-pm RRA
                               setNames(rep("dotdash", length(linetype_labels[-c(1:5)][grepl(" RRA ", linetype_labels[-c(1:5)], fixed = TRUE)])),
                                        names(linetype_labels[-c(1:5)][grepl(" RRA ", linetype_labels[-c(1:5)], fixed = TRUE)])),
                               
-                              # Cost Iso-Curves
                               "Cost" = "dashed")) +
       scale_fill_manual(name = "Region", values = c("RoI Region" = "yellow")) +
       theme(legend.position = "right", legend.text = element_text(size = 10))
@@ -1027,18 +949,16 @@ server <- function(input, output, session) {
   
   
   output$roc_plot <- renderPlot({
-    # Controlla se ci sono dati ROC
     if (length(roc_data_list()) == 0) {
-      return(NULL)  # Non renderizzare nulla se non ci sono dati
+      return(NULL)
     }
     
-    # Genera plot 
     generate_roc_plot()
   }, width = function() { input$plot_size_input }, height = function() { input$plot_size_input })
   
   
   
-  # output AUC, RRA e Thresholds della ROI
+  # output AUC, RRA e Thresholds of ROI
   output$auc_output <- renderPrint({
     req(auc_rra_values(), roc_data_list())
     auc_rra_list <- auc_rra_values()
@@ -1057,12 +977,10 @@ server <- function(input, output, session) {
       curve <- roc_data_list()[[i]]
       auc_rra <- auc_rra_values()[[i]]
       
-      # Calcolo RRA e punti estremi
       rra_result <- calculate_rra_region(curve, rho)
       first_point <- rra_result$first_point
       last_point <- rra_result$last_point
       
-      # soglie punti iniziale e finale
       if(curve$Thresholds[1] == "Not Provided"){
         min_thresh <- "Not Provided"
         max_thresh <- "Not Provided"
@@ -1091,7 +1009,6 @@ server <- function(input, output, session) {
       }
       
       if(input$show_threshold_points){
-        #output estremi ROI
         cat("  First Point in ROI:\n")
         cat("    FPR:", round(first_point$FPR, 3), "TPR:", round(first_point$TPR, 3), "\n")
         if(min_thresh != "Not Provided"){
