@@ -630,14 +630,13 @@ server <- function(input, output, session) {
         first_point <- rra_result$first_point
         last_point <- rra_result$last_point
 
-        if(curve$Thresholds[1] == "Not Provided"){
+        if(curve$Thresholds[1] == "Not Provided" || is.na(first_point$FPR)){
           min_thresh <- "Not Provided"
           max_thresh <- "Not Provided"
         }else{
           min_thresh <- curve$Thresholds[which.min(abs(curve$FPR - first_point$FPR))]
           max_thresh <- curve$Thresholds[which.min(abs(curve$FPR - last_point$FPR))]
         }
-        print(min_thresh)
         content <- paste0(content, "<p>First point in RoI: FPR = ", 
                           round(first_point$FPR, 3), ", TPR = ", round(first_point$TPR, 3),
                           ifelse(min_thresh == "Not Provided", "", 
@@ -971,7 +970,7 @@ server <- function(input, output, session) {
     for (i in seq_along(auc_rra_list)) {
       curve_id <- paste0("curve_", i)
       show_curve <- input[[curve_id]]
-      if(!show_curve){
+      if(!(show_curve)){ 
         next
       }
       curve <- roc_data_list()[[i]]
@@ -981,7 +980,7 @@ server <- function(input, output, session) {
       first_point <- rra_result$first_point
       last_point <- rra_result$last_point
       
-      if(curve$Thresholds[1] == "Not Provided"){
+      if(curve$Thresholds[1] == "Not Provided" || is.na(first_point$FPR)){
         min_thresh <- "Not Provided"
         max_thresh <- "Not Provided"
       }else{
