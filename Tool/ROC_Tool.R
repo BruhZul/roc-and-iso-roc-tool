@@ -874,7 +874,7 @@ server <- function(input, output, session) {
         last_point <- rra_result$last_point
         
         if(input$show_roi){
-          if (!is.null(rra_region)) {
+          if (!is.null(rra_region) && length(rra_region) > 0) {
             p <- p + geom_polygon(data = rra_region, aes(x = FPR, y = TPR, fill = "RoI Region"), alpha = 0.2)
           }
         }
