@@ -1,3 +1,13 @@
+# This file is a part of the https://github.com/BruhZul/roc-and-iso-roc-tool repository.
+#
+# The tool is free software and can be redistributed and/or modified under the 
+# GNU General Public License v3.0.
+#
+# This tool is distributed but without any warranty or implied warranty of
+# merchantability or fitness for a particular purpose. See the LICENSE file for
+# more details, or refer to gnu.org/licenses for more details.
+
+
 #install packages
 packages_list = c("shiny","ggplot2","shinyjs","RColorBrewer","xml2")
 not_installed_packages = packages_list[!(packages_list %in% installed.packages()[,"Package"])]
