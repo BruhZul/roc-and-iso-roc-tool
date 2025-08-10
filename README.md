@@ -12,9 +12,9 @@ You can find more details on how to use it and how to install it in the Document
 
 
 The Tool uses the following libraries:
-Shiny (https://cran.r-project.org/web/packages/shiny/index.html)
-ggplot2 (https://cran.r-project.org/web/packages/ggplot2/index.html)
-shinyjs (https://cran.r-project.org/web/packages/shinyjs/index.html)
-RColorBrewer (https://cran.r-project.org/web/packages/RColorBrewer/index.html)
-xml2 (https://cran.r-project.org/web/packages/xml2/index.html)
-iRRA (Morasca, Sandro, and Luigi Lavazza. "On the assessment of software defect prediction models via ROC curves." Empirical Software Engineering 25.5 (2020): 3977-4019. DOI: https://doi.org/10.1007/s10664-020-09861-4)
+- Shiny (https://cran.r-project.org/web/packages/shiny/index.html)
+- ggplot2 (https://cran.r-project.org/web/packages/ggplot2/index.html)
+- shinyjs (https://cran.r-project.org/web/packages/shinyjs/index.html)
+- RColorBrewer (https://cran.r-project.org/web/packages/RColorBrewer/index.html)
+- xml2 (https://cran.r-project.org/web/packages/xml2/index.html)
+- iRRA (Morasca, Sandro, and Luigi Lavazza. "On the assessment of software defect prediction models via ROC curves." Empirical Software Engineering 25.5 (2020): 3977-4019. DOI: https://doi.org/10.1007/s10664-020-09861-4)
