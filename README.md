@@ -4,7 +4,7 @@ ROC Tool is a tool that allows the user to visualize ROC curves and easily perfo
 
 For more information on how Regions of Interest, RRA, and iso-PM curves work, refer to the following paper:
 
-Luigi Lavazza, Sandro Morasca, Gabriele Rotoloni. Software Defect Prediction evaluation: New metrics based on the ROC curve.Information and Software Technology, 2025, (Waiting for publication)
+Luigi Lavazza, Sandro Morasca, Gabriele Rotoloni. Software Defect Prediction evaluation: New metrics based on the ROC curve.Information and Software Technology, 2025, https://doi.org/10.1016/j.infsof.2025.107865
 
 If you use this tool for your research, please reference that paper.
 
