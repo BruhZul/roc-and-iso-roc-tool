@@ -49,10 +49,13 @@ po/*~
 rsconnect/
 
 #TEX
-*.aux
-*.bbl
-*.blg
-*.log
-*.synctex.gz
-*.toc
-
+Documentation/*.aux 
+Documentation/*.bbl
+Documentation/*.blg
+Documentation/*.log
+Documentation/*.synctex.gz
+Documentation/*.toc
+Documentation/*.tex
+Documentation/*.bib 
+Documentation/*.idx
+Documentation/Figures
