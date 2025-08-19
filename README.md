@@ -12,11 +12,11 @@ You can find more details on how to use it and how to install it in the Document
 
 
 The Tool uses the following libraries:
-- Shiny (https://cran.r-project.org/web/packages/shiny/index.html)
-- ggplot2 (https://cran.r-project.org/web/packages/ggplot2/index.html)
-- shinyjs (https://cran.r-project.org/web/packages/shinyjs/index.html)
-- RColorBrewer (https://cran.r-project.org/web/packages/RColorBrewer/index.html)
-- xml2 (https://cran.r-project.org/web/packages/xml2/index.html)
+- Shiny (https://cran.r-project.org/package=shiny)
+- ggplot2 (https://cran.r-project.org/package=ggplot2)
+- shinyjs (https://cran.r-project.org/package=shinyjs)
+- RColorBrewer (https://cran.r-project.org/package=RColorBrewer)
+- xml2 (https://cran.r-project.org/package=xml2)
 - iRRA (Morasca, Sandro, and Luigi Lavazza. "On the assessment of software defect prediction models via ROC curves." Empirical Software Engineering 25.5 (2020): 3977-4019. DOI: https://doi.org/10.1007/s10664-020-09861-4)
 
 This project is licensed under the GNU General Public License 3.0. See the LICENSE file for more details. This license applies to all past and present versions and commits of the repository.
